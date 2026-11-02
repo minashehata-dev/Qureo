@@ -1,0 +1,30 @@
+# ==============================================================
+# إعدادات النشر على منصة Netlify (Netlify Configuration)
+# ==============================================================
+
+[build]
+  # مجلد الملفات الثابتة المعروضة على الويب
+  publish = "public"
+  # مجلد دوال Netlify Serverless Functions
+  functions = "netlify/functions"
+
+# ترويسات الأمان والحماية
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# توجيه طلبات الـ API إلى دوال Netlify
+[[redirects]]
+  from = "/api/status"
+  to = "/.netlify/functions/status"
+  status = 200
+
+# توجيه المسارات الثابتة
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

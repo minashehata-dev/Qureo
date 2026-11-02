@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  qureo-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qureo_solver_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - HEADLESS=true
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # حفظ قاعدة البيانات وبنك الإجابات وحسابات المستخدمين
+      - ./data:/app/data
+      # حفظ سجلات التشغيل
+      - ./logs:/app/logs
+      # حفظ لقطات الشاشة الحية
+      - ./screenshots:/app/screenshots
+    # زيادة حجم الذاكرة المشتركة لمنع تعطل متصفح Chromium في Docker
+    shm_size: '1gb'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
