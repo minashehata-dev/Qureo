@@ -641,11 +641,24 @@ async def cb_account_status(event: CallbackQuery | Message):
         await event.answer()
 
     if not sess.get("is_logged_in") or not client.page:
-        text = (
-            "⚠️ **أنت غير مسجل الدخول بمنصة كيريو حالياً!**\n\n"
-            "يرجى الضغط على زر **'🔑 تسجيل الدخول'** أولاً، ليتمكن البوت من جلب مستواك الحالي وكافة تفاصيل تقدمك مباشرة عبر الـ API."
-        )
-        markup = get_main_keyboard(is_logged_in=False, is_solving=False, grade=grade, subject="programming")
+        is_adm = sess.get("is_admin", False)
+        if is_adm:
+            text = (
+                "👑 **لوحة الإدارة - أنت غير متصل بحساب كيريو حالياً:**\n\n"
+                "يمكنك حل المنصة لأي حساب طالب مباشرة عبر زر **'حل المنصة لحساب طالب'** أدناه دون الحاجة لتسجيل حسابك الشخصي."
+            )
+            markup = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="🎯 حل المنصة لحساب طالب (Admin Solver)", callback_data="btn_admin_solve_account")],
+                [InlineKeyboardButton(text="🔐 تسجيل الدخول بحساب كيريو", callback_data="btn_login")],
+                [InlineKeyboardButton(text="👑 لوحة تحكم الأدمن", callback_data="btn_admin_panel")]
+            ])
+        else:
+            text = (
+                "⚠️ **أنت غير مسجل الدخول بمنصة كيريو حالياً!**\n\n"
+                "يرجى الضغط على زر **'🔑 تسجيل الدخول'** أولاً، ليتمكن البوت من جلب مستواك الحالي وكافة تفاصيل تقدمك مباشرة عبر الـ API."
+            )
+            markup = get_main_keyboard(is_logged_in=False, is_solving=False, grade=grade, subject="programming")
+
         if is_callback:
             try:
                 await event.message.edit_text(text, reply_markup=markup, parse_mode="Markdown")
@@ -947,8 +960,20 @@ async def process_password(message: Message, state: FSMContext):
     try:
         success, resp_message, screenshot_path = await client.login(username, password)
     except Exception as e:
+        err_msg = str(e)
+        if "22" in err_msg or "invalid argument" in err_msg.lower() or "executable" in err_msg.lower():
+            err_details = (
+                f"❌ **تعذر تشغيل المتصفح على السيرفر (Error 22 / Missing Chromium)**\n\n"
+                f"💡 **طريقة الحل السريعة على السيرفر:**\n"
+                f"افتح شاشة سطر الأوامر (Terminal/SSH) بالسيرفر ونفّذ الأمر التالي:\n"
+                f"`playwright install --with-deps chromium`\n\n"
+                f"ثم أعد تشغيل البوت وستعمل كل الوظائف بسلاسة."
+            )
+        else:
+            err_details = f"❌ حدث خطأ أثناء تشغيل المتصفح: {err_msg}\n\nيرجى إعادة المحاولة بالضغط على تسجيل الدخول."
+
         await status_msg.edit_text(
-            f"❌ حدث خطأ أثناء تشغيل المتصفح: {str(e)}\n\nيرجى إعادة المحاولة بالضغط على تسجيل الدخول.",
+            err_details,
             reply_markup=get_main_keyboard(is_logged_in=False, is_solving=False, grade=grade, subject=subject)
         )
         return
@@ -1049,11 +1074,24 @@ async def show_course_chapters_view(event, course_code: str = "py", page: int = 
     subject = sess.get("subject", "programming")
 
     if not sess.get("is_logged_in") or not client.page:
-        text = (
-            f"📚 **تم اختيار {course_name}**\n\n"
-            "⚠️ **تنبيه:** يرجى تسجيل الدخول بحسابك في منصة كيريو أولاً ليتمكن البوت من جلب الأسئلة وعرضها وحلها عبر الـ API."
-        )
-        markup = get_main_keyboard(is_logged_in=False, is_solving=False, grade=grade, subject=subject)
+        if sess.get("is_admin"):
+            text = (
+                f"📚 **تم اختيار {course_name} (وضع الأدمن 👑)**\n\n"
+                "⚠️ لم يتم تسجيل الدخول بعد بحساب طالب للحل.\n"
+                "اضغط أدناه لبدء الحل لحساب طالب أو تسجيل حسابك:"
+            )
+            markup = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="🎯 حل المنصة لحساب طالب خارجي (Admin Solver)", callback_data="btn_admin_solve_account")],
+                [InlineKeyboardButton(text="🔐 تسجيل الدخول بحساب خاص", callback_data="btn_login")],
+                [InlineKeyboardButton(text="👑 العودة للوحة الأدمن", callback_data="btn_admin_panel")]
+            ])
+        else:
+            text = (
+                f"📚 **تم اختيار {course_name}**\n\n"
+                "⚠️ **تنبيه:** يرجى تسجيل الدخول بحسابك في منصة كيريو أولاً ليتمكن البوت من جلب الأسئلة وعرضها وحلها عبر الـ API."
+            )
+            markup = get_main_keyboard(is_logged_in=False, is_solving=False, grade=grade, subject=subject)
+
         if isinstance(event, CallbackQuery):
             try:
                 await event.message.edit_text(text, reply_markup=markup, parse_mode="Markdown")
@@ -1525,7 +1563,10 @@ async def cb_open_browser(callback: CallbackQuery, state: FSMContext):
                 parse_mode="Markdown"
             )
     except Exception as e:
-        await status_msg.edit_text(f"⚠️ حدث خطأ أثناء فتح المتصفح: {e}")
+        err_msg = str(e)
+        if "22" in err_msg or "invalid argument" in err_msg.lower() or "executable" in err_msg.lower():
+            err_msg = "تعذر تشغيل المتصفح على السيرفر. يرجى تنفيذ `playwright install --with-deps chromium` في تيرمينال السيرفر."
+        await status_msg.edit_text(f"⚠️ حدث خطأ أثناء فتح المتصفح: {err_msg}")
 
 
 @router.callback_query(F.data == "btn_start_solve")
@@ -2244,6 +2285,16 @@ async def handle_incoming_text(message: Message, state: FSMContext):
         return
 
     # 3. إذا أرسل المستخدم نصاً آخر
+    if sess.get("is_admin"):
+        await message.answer(
+            "👑 **مرحباً بك في وضع الإدارة (Admin Mode):**\n\n"
+            "• يمكنك إرسال **رابط الفصل** (مثل `https://me-tp.qureo.education/chapter/90032`)\n"
+            "• أو **رقم الفصل** (مثل `90032`) لحله فوراً في المتصفح.\n\n"
+            "أو اختر الإجراء المطلوب من لوحة تحكم الأدمن أدناه:",
+            reply_markup=get_admin_dashboard_keyboard()
+        )
+        return
+
     await message.answer(
         "👋 يمكنك إرسال **رابط الفصل** (مثل `https://me-tp.qureo.education/chapter/90032`)\n"
         "أو **رقم الفصل** (مثل `90032`) مباشرة لحله فوراً في المتصفح!\n\n"
@@ -2975,37 +3026,9 @@ async def cb_admin_select_solve_grade(callback: CallbackQuery, state: FSMContext
     await state.set_state(UserStates.admin_waiting_target_username)
 
 
-@router.message(UserStates.admin_waiting_target_username)
-async def process_admin_target_username(message: Message, state: FSMContext):
-    """استلام كود الطالب المراد حله من الأدمن"""
-    track_message(message.from_user.id, message.message_id)
-    username = message.text.strip()
-    if not username:
-        await message.answer("⚠️ يرجى إرسال كود أو اسم مستخدم صحيح:")
-        return
-    await state.update_data(target_username=username)
-
-    text = (
-        f"👤 كود الطالب: `{username}`\n\n"
-        "🔑 **الخطوة 2 من 2:** أرسل **كلمة المرور (Password)** الخاصة بهذا الحساب:\n"
-        "*(سيتم تسجيل الدخول فوراً وبدء حل المنصة بالكامل 100%)*"
-    )
-    sent = await message.answer(text, reply_markup=get_cancel_keyboard(), parse_mode="Markdown")
-    track_message(message.from_user.id, sent.message_id)
-    await state.set_state(UserStates.admin_waiting_target_password)
-
-
-@router.message(UserStates.admin_waiting_target_password)
-async def process_admin_target_password(message: Message, state: FSMContext):
-    """تسجيل الدخول بحساب الطالب وإطلاق الحل التلقائي الشامل فوراً"""
-    user_id = message.from_user.id
+async def execute_admin_solve(message: Message, user_id: int, target_username: str, password: str, data: dict):
+    """تنفيذ تسجيل الدخول بحساب الطالب وبدء الحل الشامل للأدمن بأمان تام"""
     sess = get_session(user_id)
-    track_message(user_id, message.message_id)
-    password = message.text.strip()
-    data = await state.get_data()
-    await state.clear()
-
-    target_username = data.get("target_username")
     target_grade = data.get("target_grade", "grade_1")
     target_course_url = data.get("target_course_url", "https://me-tp.qureo.education/course/javascript_ar")
     target_label = data.get("target_grade_label", "كيريو")
@@ -3027,7 +3050,12 @@ async def process_admin_target_password(message: Message, state: FSMContext):
 
     client = get_user_client(user_id)
     client.headless = Config.HEADLESS
-    login_ok, login_msg, shot = await client.login(target_username, password)
+    try:
+        login_ok, login_msg, shot = await client.login(target_username, password)
+    except Exception as e_login:
+        login_ok = False
+        login_msg = str(e_login)
+        shot = ""
 
     if not login_ok:
         await status_msg.edit_text(
@@ -3056,4 +3084,67 @@ async def process_admin_target_password(message: Message, state: FSMContext):
 
     # إطلاق حلقة الحل التلقائية لكامل المنهج بدون أي قيود
     asyncio.create_task(run_solver_loop(message, user_id))
+
+
+@router.message(UserStates.admin_waiting_target_username)
+async def process_admin_target_username(message: Message, state: FSMContext):
+    """استلام كود الطالب المراد حله من الأدمن مع دعم إرسال الاسم والباسورد معاً"""
+    track_message(message.from_user.id, message.message_id)
+    raw_text = (message.text or "").strip()
+    if not raw_text:
+        await message.answer("⚠️ يرجى إرسال كود أو اسم مستخدم صحيح:")
+        return
+
+    data = await state.get_data()
+
+    # فحص ذكي: هل قام الأدمن بإرسال الكود وكلمة المرور معاً في رسالة واحدة؟
+    lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
+    parts = raw_text.split()
+
+    if len(lines) >= 2 and not raw_text.startswith("http"):
+        u_val = lines[0].split(":")[-1].strip()
+        p_val = lines[1].split(":")[-1].strip()
+        await state.clear()
+        await execute_admin_solve(message, message.from_user.id, u_val, p_val, data)
+        return
+    elif len(parts) == 2 and not raw_text.startswith("http") and not raw_text.startswith("/"):
+        u_val = parts[0].strip()
+        p_val = parts[1].strip()
+        await state.clear()
+        await execute_admin_solve(message, message.from_user.id, u_val, p_val, data)
+        return
+
+    await state.update_data(target_username=raw_text)
+
+    text = (
+        f"👤 كود الطالب: `{raw_text}`\n\n"
+        "🔑 **الخطوة 2 من 2:** أرسل **كلمة المرور (Password)** الخاصة بهذا الحساب:\n"
+        "*(سيتم تسجيل الدخول فوراً وبدء حل المنصة بالكامل 100%)*"
+    )
+    sent = await message.answer(text, reply_markup=get_cancel_keyboard(), parse_mode="Markdown")
+    track_message(message.from_user.id, sent.message_id)
+    await state.set_state(UserStates.admin_waiting_target_password)
+
+
+@router.message(UserStates.admin_waiting_target_password)
+async def process_admin_target_password(message: Message, state: FSMContext):
+    """استلام كلمة المرور من الأدمن وبدء الحل الفوري"""
+    user_id = message.from_user.id
+    track_message(user_id, message.message_id)
+    password = (message.text or "").strip()
+    data = await state.get_data()
+    await state.clear()
+
+    target_username = data.get("target_username") or get_session(user_id).get("username")
+    if not target_username:
+        await message.answer(
+            "⚠️ تعذر العثور على كود الطالب! يرجى إعادة المحاولة من لوحة الأدمن.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="🎯 إعادة المحاولة", callback_data="btn_admin_solve_account")],
+                [InlineKeyboardButton(text="🏠 لوحة الأدمن", callback_data="btn_admin_panel")]
+            ])
+        )
+        return
+
+    await execute_admin_solve(message, user_id, target_username, password, data)
 
