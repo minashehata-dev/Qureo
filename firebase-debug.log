@@ -1,0 +1,55 @@
+[debug] [2026-11-03T18:44:48.345Z] ----------------------------------------------------------------------
+[debug] [2026-11-03T18:44:48.349Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-11-03T18:44:48.349Z] CLI Version:   15.22.4
+[debug] [2026-11-03T18:44:48.349Z] Platform:      win32
+[debug] [2026-11-03T18:44:48.350Z] Node Version:  v22.16.0
+[debug] [2026-11-03T18:44:48.350Z] Detected Agent: antigravity
+[debug] [2026-11-03T18:44:48.351Z] Time:          Tue Nov 03 2026 20:44:48 GMT+0200 (Eastern European Standard Time)
+[debug] [2026-11-03T18:44:48.351Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-03T18:44:48.354Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-11-03T18:44:48.453Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-11-03T18:44:48.453Z] > authorizing via signed-in user (minashehata752@gmail.com)
+[debug] [2026-11-03T18:44:48.457Z] Checked if tokens are valid: false, expires at: 1789073917335
+[debug] [2026-11-03T18:44:48.458Z] Checked if tokens are valid: false, expires at: 1789073917335
+[debug] [2026-11-03T18:44:48.458Z] > refreshing access token with scopes: []
+[debug] [2026-11-03T18:44:48.460Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-11-03T18:44:48.460Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-11-03T18:44:48.468Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: getaddrinfo ENOTFOUND firebase-public.firebaseio.com
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-11-03T18:44:48.468Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[debug] [2026-11-03T18:44:48.473Z] *** [apiv2] error from fetch(https://www.googleapis.com/oauth2/v3/token, {"headers":{},"method":"POST","body":{"type":"Buffer","data":[45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,101,99,49,49,48,53,101,97,102,51,57,55,97,50,100,53,52,52,101,101,50,102,97,54,13,10,67,111,110,116,101,110,116,45,68,105,115,112,111,115,105,116,105,111,110,58,32,102,111,114,109,45,100,97,116,97,59,32,110,97,109,101,61,34,114,101,102,114,101,115,104,95,116,111,107,101,110,34,13,10,13,10,49,47,47,48,51,55,95,99,117,84,116,80,54,81,65,77,67,103,89,73,65,82,65,65,71,65,77,83,78,103,70,45,76,57,73,114,106,78,118,51,78,117,45,120,95,109,111,51,90,77,111,51,90,109,117,78,102,106,121,52,72,45,115,79,103,57,87,90,77,99,115,48,49,48,51,48,88,101,45,87,83,51,116,54,52,53,104,117,52,114,82,103,105,120,68,69,118,77,70,48,104,81,13,10,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,101,99,49,49,48,53,101,97,102,51,57,55,97,50,100,53,52,52,101,101,50,102,97,54,13,10,67,111,110,116,101,110,116,45,68,105,115,112,111,115,105,116,105,111,110,58,32,102,111,114,109,45,100,97,116,97,59,32,110,97,109,101,61,34,99,108,105,101,110,116,95,105,100,34,13,10,13,10,53,54,51,53,56,52,51,51,53,56,54,57,45,102,103,114,104,103,109,100,52,55,98,113,110,101,107,105,106,53,105,56,98,53,112,114,48,51,104,111,56,52,57,101,54,46,97,112,112,115,46,103,111,111,103,108,101,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,13,10,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,101,99,49,49,48,53,101,97,102,51,57,55,97,50,100,53,52,52,101,101,50,102,97,54,13,10,67,111,110,116,101,110,116,45,68,105,115,112,111,115,105,116,105,111,110,58,32,102,111,114,109,45,100,97,116,97,59,32,110,97,109,101,61,34,99,108,105,101,110,116,95,115,101,99,114,101,116,34,13,10,13,10,106,57,105,86,90,102,83,56,107,107,67,69,70,85,80,97,65,101,74,86,48,115,65,105,13,10,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,101,99,49,49,48,53,101,97,102,51,57,55,97,50,100,53,52,52,101,101,50,102,97,54,13,10,67,111,110,116,101,110,116,45,68,105,115,112,111,115,105,116,105,111,110,58,32,102,111,114,109,45,100,97,116,97,59,32,110,97,109,101,61,34,103,114,97,110,116,95,116,121,112,101,34,13,10,13,10,114,101,102,114,101,115,104,95,116,111,107,101,110,13,10,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,101,99,49,49,48,53,101,97,102,51,57,55,97,50,100,53,52,52,101,101,50,102,97,54,13,10,67,111,110,116,101,110,116,45,68,105,115,112,111,115,105,116,105,111,110,58,32,102,111,114,109,45,100,97,116,97,59,32,110,97,109,101,61,34,115,99,111,112,101,34,13,10,13,10,13,10,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,45,101,99,49,49,48,53,101,97,102,51,57,55,97,50,100,53,52,52,101,101,50,102,97,54,45,45,13,10]}}): FetchError: request to https://www.googleapis.com/oauth2/v3/token failed, reason: getaddrinfo ENOTFOUND www.googleapis.com
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-11-03T18:44:48.473Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-11-03T18:44:48.485Z] FirebaseError: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+    at invalidCredentialError (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\auth.js:176:12)
+    at refreshTokens (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\auth.js:589:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getAccessToken (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:55:18)
+    at async Client.addAuthHeader (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:207:21)
+    at async Client.request (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:154:34)
+    at async getProjectPage (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:287:17)
+    at async getFirebaseProjectPage (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:304:23)
+    at async listFirebaseProjects (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:333:29)
+    at async Command.actionFn (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\projects-list.js:51:20)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-11-03T18:44:48.855Z] Error: EPERM: operation not permitted, open 'C:\Users\MinaS\.config\configstore\firebase-tools.json.1868304226'
+    at Object.openSync (node:fs:562:18)
+    at Function.writeFileSync [as sync] (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\write-file-atomic\index.js:205:13)
+    at set all (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\configstore\index.js:61:20)
+    at Configstore.delete (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\configstore\index.js:101:12)
+    at process.<anonymous> (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js:90:45)
+    at process.emit (node:events:530:35)
+    at process.exit (node:internal/process/per_thread:194:15)
+    at Timeout._onTimeout (C:\Users\MinaS\AppData\Roaming\npm\node_modules\firebase-tools\lib\errorOut.js:20:17)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[error] 
+[error] Error: An unexpected error has occurred.
