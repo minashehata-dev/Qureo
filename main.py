@@ -7,12 +7,46 @@ from pathlib import Path
 
 # ==============================================================
 # إجبار بايثون على إضافة مجلد المشروع في أول قائمة sys.path
-# هذا يمنع خطأ (ModuleNotFoundError: No module named 'bot') تماماً
-# على أي سيرفر أو حاوية Docker أو بيئة استضافة مثل blitz.cloud
+# واكتشاف الحزم تلقائياً لمنع أي خطأ ModuleNotFoundError نهائياً
 # ==============================================================
 BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
+
+# 1. البحث التلقائي عن حزمة bot سواء في المجلد الأساسي أو مجلدات فرعية (مثل PythonProject3 أو src أو Bot)
+bot_candidate = BASE_DIR / "bot"
+if not bot_candidate.exists():
+    # فحص إذا كان المجلد مكتوب بحروف مختلفة مثل Bot في بيئة لينكس الحساسة لحالة الأحرف
+    for item in os.listdir(BASE_DIR):
+        item_path = BASE_DIR / item
+        if item.lower() == "bot" and item_path.is_dir():
+            try:
+                os.symlink(item_path, bot_candidate)
+            except Exception:
+                pass
+            if str(BASE_DIR) not in sys.path:
+                sys.path.insert(0, str(BASE_DIR))
+            break
+
+    # فحص إذا كانت الملفات موضوعة داخل مجلد فرعي متداخل (مثل PythonProject3/bot)
+    if not bot_candidate.exists():
+        for root, dirs, files in os.walk(BASE_DIR):
+            if "handlers.py" in files and os.path.basename(root).lower() == "bot":
+                parent_dir = os.path.dirname(root)
+                if parent_dir not in sys.path:
+                    sys.path.insert(0, parent_dir)
+                break
+
+# 2. طباعة تشخيصية فورية لمحتويات السيرفر في السجلات للتحقق
+current_files = [f for f in os.listdir(BASE_DIR) if not f.startswith(".")]
+print("\n" + "=" * 65)
+print(f"🚀 [Qureo Bot Engine] بدء تشغيل البوت في المسار: {BASE_DIR}")
+print(f"📂 محتويات مجلد العمل في السيرفر: {current_files}")
+has_bot = (BASE_DIR / "bot").exists() or any("bot" in str(p).lower() for p in sys.path)
+if not has_bot:
+    print("⚠️ [تنبيه هام]: لم يتم العثور على مجلد 'bot' في السيرفر!")
+    print("   تأكد من رفع مجلد 'bot' إلى مستودع GitHub.")
+print("=" * 65 + "\n")
 
 # إجبار بايثون على استخدام ترميز UTF-8 في ويندوز لمنع أي أخطاء في الرموز التعبيرية واللغة العربية
 if hasattr(sys.stdout, "reconfigure"):
