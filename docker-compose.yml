@@ -22,7 +22,8 @@ services:
       - ./logs:/app/logs
       # حفظ لقطات الشاشة الحية
       - ./screenshots:/app/screenshots
-    # زيادة حجم الذاكرة المشتركة لمنع تعطل متصفح Chromium في Docker
+    # زيادة حجم الذاكرة المشتركة ومشاركة IPC لمنع تعطل متصفح Chromium في Docker
+    ipc: host
     shm_size: '1gb'
     logging:
       driver: "json-file"

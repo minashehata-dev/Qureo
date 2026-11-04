@@ -77,9 +77,31 @@ netlify deploy --prod --dir=public
 
 ### مميزات حاوية Docker المجهزة:
 - تحتوي على بيئة `python:3.11-slim` مع جميع مكتبات نظام لينكس المطلوبة لتشغيل **Chromium**.
-- مزودة بأعلام تشغيل متصفح آمنة (`--no-sandbox`, `--disable-dev-shm-usage`).
-- تم ضبط `shm_size: '1gb'` لضمان عدم تعطل صفحات كيريو الثقيلة داخل الحاوية.
+- مزودة بأعلام تشغيل متصفح آمنة (`--no-sandbox`, `--disable-dev-shm-usage`, `--disable-crash-reporter`, `--no-crashpad`).
+- تم ضبط `ipc: host` و `shm_size: '1gb'` لضمان عدم تعطل صفحات كيريو الثقيلة داخل الحاوية.
 - مجلد `data/` و `logs/` و `screenshots/` يتم حفظها في Volume خارجي لعدم فقدان بنك الإجابات عند إعادة تشغيل الحاوية.
+
+---
+
+### 2️⃣.1 التشغيل المباشر على خادم VPS (Ubuntu / Debian / blitz.cloud) بدون Docker
+
+إذا كنت تشغل البوت مباشرة عبر بايثون على السيرفر بدون Docker:
+
+1. تثبيت مكتبات بايثون:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **خطوة جوهرية (لمنع خطأ Invalid argument 22 نهائياً):**
+   يجب تثبيت متصفح كروميوم مع مكتبات النظام الرسومية الخاصة بلينكس:
+   ```bash
+   playwright install --with-deps chromium
+   ```
+
+3. تشغيل البوت:
+   ```bash
+   python main.py
+   ```
 
 ---
 

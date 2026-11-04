@@ -5,6 +5,10 @@ import os
 import time
 from pathlib import Path
 
+# ضبط حلقة الأحداث لويندوز لدعم العمليات الفرعية (Subprocesses) لـ Playwright
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
 # ==============================================================
 # إجبار بايثون على إضافة مجلد المشروع في أول قائمة sys.path
 # واكتشاف الحزم تلقائياً لمنع أي خطأ ModuleNotFoundError نهائياً
@@ -48,6 +52,44 @@ if not bot_candidate.exists():
                 if parent_dir not in sys.path:
                     sys.path.insert(0, parent_dir)
                 break
+
+# 1.5 المعالجة الذاتية التلقائية (Auto-Heal): إذا تم رفع ملفات bot أو solver في المجلد الرئيسي مباشرة عبر المتصفح
+bot_root_files = ["handlers.py", "keyboards.py", "states.py"]
+if not bot_candidate.exists() and any((BASE_DIR / f).exists() for f in bot_root_files):
+    print("🔧 [Auto-Heal] تم رصد ملفات البوت مبعثرة في المجلد الرئيسي! جاري إنشاء مجلد 'bot' وتنظيم الملفات داخله...")
+    try:
+        bot_candidate.mkdir(exist_ok=True)
+        import shutil
+        for f in bot_root_files + ["__init__.py"]:
+            src = BASE_DIR / f
+            dst = bot_candidate / f
+            if src.exists() and src != dst:
+                shutil.copy2(src, dst)
+        init_file = bot_candidate / "__init__.py"
+        if not init_file.exists():
+            init_file.write_text("# Auto-generated init\n", encoding="utf-8")
+        print("✅ [Auto-Heal] تم تجميع وتنظيم مجلد 'bot' بنجاح تام!")
+    except Exception as e_heal:
+        print(f"⚠️ فشل Auto-Heal لـ bot: {e_heal}")
+
+solver_candidate = BASE_DIR / "solver"
+solver_root_files = ["answers_db.py", "firebase_db.py", "gemini_solver.py", "qureo_api.py", "qureo_client.py", "spx_api.py", "spx_client.py"]
+if not solver_candidate.exists() and any((BASE_DIR / f).exists() for f in solver_root_files):
+    print("🔧 [Auto-Heal] تم رصد ملفات solver مبعثرة في المجلد الرئيسي! جاري إنشاء مجلد 'solver' وتنظيم الملفات داخله...")
+    try:
+        solver_candidate.mkdir(exist_ok=True)
+        import shutil
+        for f in solver_root_files + ["__init__.py"]:
+            src = BASE_DIR / f
+            dst = solver_candidate / f
+            if src.exists() and src != dst:
+                shutil.copy2(src, dst)
+        init_file = solver_candidate / "__init__.py"
+        if not init_file.exists():
+            init_file.write_text("# Auto-generated init\n", encoding="utf-8")
+        print("✅ [Auto-Heal] تم تجميع وتنظيم مجلد 'solver' بنجاح تام!")
+    except Exception as e_heal_solver:
+        print(f"⚠️ فشل Auto-Heal لـ solver: {e_heal_solver}")
 
 # 2. طباعة تشخيصية لمحتويات السيرفر في السجلات للتحقق
 current_files = [f for f in os.listdir(BASE_DIR) if not f.startswith(".")]
@@ -129,6 +171,27 @@ async def main():
         health_runner = await start_health_server(Config.PORT)
     except Exception as e_srv:
         logger.warning(f"⚠️ تعذر تشغيل خادم فحص الصحة على المنفذ {Config.PORT}: {e_srv}")
+
+    # 0.5. التحقق الاستباقي من جاهزية متصفح Playwright Chromium على السيرفر
+    try:
+        import subprocess
+        print("🌐 [Browser Setup] فحص جاهزية متصفح Chromium الخاص بـ Playwright...")
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=120
+        )
+        if sys.platform != "win32":
+            subprocess.run(
+                [sys.executable, "-m", "playwright", "install-deps", "chromium"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=120
+            )
+        print("✅ [Browser Setup] متصفح Chromium واعتمادات النظام جاهزة للعمل 100%!")
+    except Exception as e_pw:
+        print(f"ℹ️ [Browser Setup] فحص المتصفح: {e_pw}")
 
     # 1. إحصائيات بنك البيانات المحلي
     from solver.answers_db import answers_db

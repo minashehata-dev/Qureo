@@ -44,6 +44,11 @@ RUN playwright install --with-deps chromium
 # نسخ الكود المصدري للمشروع كاملاً
 COPY . .
 
+# فك ضغط الحزمة التلقائي إن وُجد ملف deploy_server_package.zip ولم يُرفع مجلد bot صراحة
+RUN if [ -f deploy_server_package.zip ] && [ ! -d bot ]; then \
+        python -c "import zipfile; zipfile.ZipFile('deploy_server_package.zip').extractall('.'); print('Extracted deploy_server_package.zip successfully')"; \
+    fi
+
 # إنشاء المجلدات التخزينية للمشروع لضمان الصلاحيات
 RUN mkdir -p /app/data /app/logs /app/screenshots
 
