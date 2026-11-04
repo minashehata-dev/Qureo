@@ -2,29 +2,32 @@
 .env
 .env.local
 *.env
-firebase_credentials*.json
-serviceAccountKey*.json
 *.key
 *.pem
 
-# Python artifacts
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache & bytecode
 __pycache__/
+*/__pycache__/
+*/*/__pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
-.venv/
-ENV/
 
-# Database files
-data/*.db
+# SQLite lock and temporary files (keep answers.db tracked)
 data/*.sqlite
 data/*.sqlite3
-*.db
+data/*.db-shm
+data/*.db-wal
+data/*.db-journal
 
-# Screenshots and Logs
+# Screenshots and logs
 screenshots/*
 !screenshots/.gitkeep
 logs/*
@@ -40,3 +43,8 @@ logs/*
 node_modules/
 dist/
 build/
+
+# Local logs and scratch scripts
+*.log
+firebase-debug.log
+scratch/
