@@ -13,10 +13,23 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-# 1. البحث التلقائي عن حزمة bot سواء في المجلد الأساسي أو مجلدات فرعية (مثل PythonProject3 أو src أو Bot)
+# 0. استخراج الحزمة التلقائي إذا وجد ملف deploy_server_package.zip على السيرفر
 bot_candidate = BASE_DIR / "bot"
 if not bot_candidate.exists():
-    # فحص إذا كان المجلد مكتوب بحروف مختلفة مثل Bot في بيئة لينكس الحساسة لحالة الأحرف
+    zip_files = list(BASE_DIR.glob("*.zip"))
+    for z_file in zip_files:
+        try:
+            import zipfile
+            print(f"📦 [Auto-Extract] وجد أرشيف '{z_file.name}' على السيرفر! جاري فك ضغط الحزمة تلقائياً...")
+            with zipfile.ZipFile(z_file, "r") as z:
+                z.extractall(BASE_DIR)
+            print("✅ [Auto-Extract] تم فك ضغط مجلدات bot و solver وبنك البيانات بنجاح تام!")
+            break
+        except Exception as e_zip:
+            print(f"⚠️ فشل استخراج {z_file.name}: {e_zip}")
+
+# 1. البحث التلقائي عن حزمة bot سواء في المجلد الأساسي أو مجلدات فرعية (مثل PythonProject3 أو src أو Bot)
+if not bot_candidate.exists():
     for item in os.listdir(BASE_DIR):
         item_path = BASE_DIR / item
         if item.lower() == "bot" and item_path.is_dir():
@@ -28,7 +41,6 @@ if not bot_candidate.exists():
                 sys.path.insert(0, str(BASE_DIR))
             break
 
-    # فحص إذا كانت الملفات موضوعة داخل مجلد فرعي متداخل (مثل PythonProject3/bot)
     if not bot_candidate.exists():
         for root, dirs, files in os.walk(BASE_DIR):
             if "handlers.py" in files and os.path.basename(root).lower() == "bot":
@@ -37,7 +49,7 @@ if not bot_candidate.exists():
                     sys.path.insert(0, parent_dir)
                 break
 
-# 2. طباعة تشخيصية فورية لمحتويات السيرفر في السجلات للتحقق
+# 2. طباعة تشخيصية لمحتويات السيرفر في السجلات للتحقق
 current_files = [f for f in os.listdir(BASE_DIR) if not f.startswith(".")]
 print("\n" + "=" * 65)
 print(f"🚀 [Qureo Bot Engine] بدء تشغيل البوت في المسار: {BASE_DIR}")
@@ -45,7 +57,8 @@ print(f"📂 محتويات مجلد العمل في السيرفر: {current_fi
 has_bot = (BASE_DIR / "bot").exists() or any("bot" in str(p).lower() for p in sys.path)
 if not has_bot:
     print("⚠️ [تنبيه هام]: لم يتم العثور على مجلد 'bot' في السيرفر!")
-    print("   تأكد من رفع مجلد 'bot' إلى مستودع GitHub.")
+else:
+    print("✅ تم التحقق من وجود حزمة 'bot' بنجاح تام!")
 print("=" * 65 + "\n")
 
 # إجبار بايثون على استخدام ترميز UTF-8 في ويندوز لمنع أي أخطاء في الرموز التعبيرية واللغة العربية
